@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie Stream Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #0a0a0a, #000);
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+    h1 {
+      margin-bottom: 15px;
+      font-weight: 500;
+      color: #00bfff;
+    }
+    label {
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    input, textarea {
+      width: 90%;
+      max-width: 800px;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 5px 0 10px 0;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    button {
+      background: #00bfff;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 25px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 5px;
+    }
+    button:hover { background: #0099cc; }
+    video {
+      width: 90%;
+      max-width: 900px;
+      margin-top: 25px;
+      border-radius: 12px;
+      border: 2px solid #222;
+      box-shadow: 0 0 25px rgba(0,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+  <h1>🎥 Cookie-Based Stream Player</h1>
+
+  <label for="url">M3U8 URL:</label>
+  <input id="url" placeholder="https://example.com/live/stream.m3u8" />
+
+  <label for="cookie">Cookie Header:</label>
+  <textarea id="cookie" rows="3" placeholder="Edge-Cache-Cookie=..."></textarea>
+
+  <button onclick="playStream()">▶ Play Stream</button>
+
+  <video id="video" controls autoplay></video>
+
+  <script>
+    function playStream() {
+      const base = window.location.origin;
+      const video = document.getElementById("video");
+      const url = document.getElementById("url").value.trim();
+      const cookie = document.getElementById("cookie").value.trim();
+
+      if (!url || !cookie) {
+        alert("Please enter both the M3U8 URL and the Cookie header.");
+        return;
+      }
+
+      const proxied = `${base}/api/m3u8-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(JSON.stringify({ Cookie: cookie }))}`;
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(proxied);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = proxied;
+        video.play();
+      } else {
+        alert("Your browser does not support HLS playback.");
+      }
+    }
+  </script>
+</body>
+</html>
