@@ -1,0 +1,8 @@
+{
+  "name": "cookie-m3u8-player",
+  "version": "1.0.0",
+  "description": "Play cookie-based m3u8 streams via vercel proxy",
+  "main": "api/m3u8-proxy.js",
+  "type": "module",
+  "license": "MIT"
+}
